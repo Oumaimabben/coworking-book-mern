@@ -1,25 +1,18 @@
 import User from "../models/User.js";
-import bcrypt from "bcryptjs"; //pour le chiffrement
+import bcryptjs from 'bcryptjs';
 import { createError } from "../utils/error.js";
 import jwt from "jsonwebtoken"; // gestion des jetons
 
 //REGISTER
 export const register = async (req, res, next) => {
+    const { username, email, password } = req.body;
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
     try {
-        const salt = bcrypt.genSaltSync(10);  // Génération du salt pour le hachage du mp
-        const hash = bcrypt.hashSync(req.body.password, salt); //hashage du mp
-        // Création du nouvel utilisateur
-        const newUser = new User({
-            username: req.body.username,
-            email: req.body.email,
-            password: hash,
-            isAdmin: req.body.isAdmin || false, // Si req.body.isAdmin n'est pas défini, isAdmin sera false par défaut
-        });
-        // Enregistrement de l'utilisateur dans la base de données
-        await newUser.save();
-        res.status(200).send("User created");
-    } catch (err) {
-        next(err);
+      await newUser.save();
+      res.status(201).json('User created successfully!');
+    } catch (error) {
+      next(error);
     }
 };
 
