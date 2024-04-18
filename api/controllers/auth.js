@@ -23,9 +23,9 @@ export const login = async(req,res,next)=>{
         if (!user) 
         return next(createError(404, "User not found!")); //verification user
          //verification mp
-        const isPasswordCorrect = await bcrypt.compare(
+        const isPasswordCorrect = await bcryptjs.compare(
           req.body.password,
-          user.password
+          user.password 
         ); 
         if (!isPasswordCorrect)
           return next(createError(400, "Wrong password or username!"));
