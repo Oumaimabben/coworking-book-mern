@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Importer Axios
 
-export default function login() {
+export default function Login() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,23 +19,12 @@ export default function login() {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8801/api/auth/login', { // Assurez-vous d'utiliser le bon port ici
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        // Gérer les erreurs de réponse HTTP
-        throw new Error(data.message || 'Une erreur est survenue lors de l\'inscription.');
-      }
+      const response = await axios.post('http://localhost:8801/api/auth/login', formData); // Utiliser Axios pour faire la requête POST
       setLoading(false);
       navigate('/');
     } catch (error) {
       setLoading(false);
-      setError(error.message);
+      setError(error.message || 'Une erreur est survenue lors de la connexion.');
     }
   };
 

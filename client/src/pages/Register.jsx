@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Register() {
   const [formData, setFormData] = useState({});
@@ -18,23 +19,12 @@ export default function Register() {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8801/api/auth/register', { // Assurez-vous d'utiliser le bon port ici
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        // Gérer les erreurs de réponse HTTP
-        throw new Error(data.message || 'Une erreur est survenue lors de l\'inscription.');
-      }
+      const response = await axios.post('http://localhost:8801/api/auth/register', formData);
       setLoading(false);
       navigate('/login');
     } catch (error) {
       setLoading(false);
-      setError(error.message);
+      setError(error.message || 'Une erreur est survenue lors de l\'inscription.');
     }
   };
 
