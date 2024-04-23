@@ -18,7 +18,9 @@ router.put("/:id",verifyAdmin, updateRoom);
 //DELETE
 router.delete("/:id",verifyAdmin, deleteRoom);
 //getRoomDetails
-router.get("/:roomId", verifyToken, getRoomDetails);
+router.get("/:roomId", getRoomDetails);
+//getroom
+router.get("/",  getRooms);
 
 
 

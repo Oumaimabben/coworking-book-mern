@@ -71,7 +71,7 @@ export const sendReservationCancellationEmail = (recipient, reservationDetails) 
         if (error) {
             console.log('Erreur lors de l\'envoi de l\'e-mail :', error);
         } else {
-            console.log('E-mail de confirmation de réservation envoyé :', info.response);
+            console.log('E-mail de confirmation de suppression réservation envoyé :', info.response);
         }
     });
 };

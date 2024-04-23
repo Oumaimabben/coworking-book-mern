@@ -1,5 +1,6 @@
 import Reservation from "../models/Reservation.js";
 import Room from "../models/Room.js";
+import User from "../models/User.js";
 import { sendReservationConfirmationEmail,sendReservationModificationEmail,sendReservationCancellationEmail } from "../utils/emailService.js";
 
 
@@ -9,7 +10,11 @@ export const createReservation = async (req, res ,next) => {
     const { userId, roomId, startTime, endTime } = req.body;
     //verfication
     const room = await Room.findById(roomId);
+    const USER = await User.findById(req.body.userId);
     if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    if (!USER) {
       return res.status(404).json({ message: "Room not found" });
     }
     // Check if the room is available for the specified time period
@@ -37,7 +42,8 @@ export const createReservation = async (req, res ,next) => {
       date: startTime, 
       room: room.name 
     };
-    sendReservationConfirmationEmail('destinataire@example.com', reservationDetails);
+    sendReservationConfirmationEmail(USER.email, reservationDetails);
+    console.log(USER.email)
     res.status(201).json(reservation);
   } catch (error) {
     next(err)
@@ -47,7 +53,7 @@ export const createReservation = async (req, res ,next) => {
 // Get all reservations
 export const getAllReservations = async (req, res,next) => {
   try {
-    const reservations = await Reservation.find();
+    const reservations = await Reservation.find().populate("userId");
     res.status(200).json(reservations);
   } catch (error) {
     next(err)
@@ -80,6 +86,11 @@ export const updateReservation = async (req, res, next) => {
       res.status(404).json({ message: "Reservation not found" });
       return;
     }
+
+    const USER = await User.findById(req.body.userId);
+    if (!USER) {
+      return res.status(404).json({ message: "Room not found" });
+    }
     // Extract  info room  from the updated reservation 
     const { room } = reservation;
     // Envoyer un email de confirmation de mise à jour de réservation
@@ -87,7 +98,7 @@ export const updateReservation = async (req, res, next) => {
       date: reservation.startTime,
       room: room 
     };
-    sendReservationModificationEmail('destinataire@example.com', reservationDetails);
+    sendReservationModificationEmail(USER.email, reservationDetails);
 
     res.status(200).json(reservation);
   } catch (error) {
@@ -95,29 +106,51 @@ export const updateReservation = async (req, res, next) => {
   }
 };
 // Delete a reservation by ID
-export const deleteReservation = async (req, res ,next) => {
+export const deleteReservation = async (req, res, next) => {
   try {
-    const reservation = await Reservation.findByIdAndDelete(req.params.id);
-    if (!reservation) {
-      res.status(404).json({ message: "Reservation not found" });
-      return;
+    const { reservationId } = req.body;
+
+    // Vérifier si l'ID de la réservation est fourni
+    if (!reservationId) {
+      return res.status(400).json({ message: "Reservation ID is required" });
     }
-    //update the corresponding room to mark it as available
+
+    // Trouver la réservation par son ID
+    const reservation = await Reservation.findById(reservationId);
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    // Récupérer l'ID de l'utilisateur à partir de la réservation
+    const userId = reservation.userId;
+
+    // Supprimer la réservation
+    await Reservation.findByIdAndDelete(reservationId);
+
+    // Récupérer l'utilisateur par son ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Récupérer la salle associée à la réservation
     const room = await Room.findById(reservation.roomId);
     if (!room) {
-      res.status(404).json({ message: "Room not found" });
-      return;
+      return res.status(404).json({ message: "Room not found" });
     }
     room.available = true;
     await room.save();
+
     // Envoyer un email de confirmation de suppression de réservation
     const reservationDetails = {
-      date: reservation.startTime, 
-      room: room.name 
+      date: reservation.startTime,
+      room: room.name
     };
-    sendReservationCancellationEmail('destinataire@example.com', reservationDetails);
+    sendReservationCancellationEmail(user.email, reservationDetails);
+
     res.status(200).json({ message: "Reservation deleted successfully" });
   } catch (error) {
-    next(err)
+    next(error);
   }
 };
+
