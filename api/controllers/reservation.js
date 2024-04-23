@@ -15,7 +15,7 @@ export const createReservation = async (req, res ,next) => {
       return res.status(404).json({ message: "Room not found" });
     }
     if (!USER) {
-      return res.status(404).json({ message: "Room not found" });
+      return res.status(404).json({ message: "user not found" });
     }
     // Check if the room is available for the specified time period
     const existingReservation = await Reservation.findOne({
@@ -33,8 +33,8 @@ export const createReservation = async (req, res ,next) => {
       return res.status(400).json({ message: "Room is not available for the specified time period" });
     }
     const reservation = await Reservation.create(req.body);
-      room.reservations.push(reservation); //Add reservation to the room's reservations array 
-    // Update room availability
+      room.reservations.push(reservation); 
+    // Update room
     room.available = false;
     await room.save();
     // Envoyer un email de confirmation de réservation
@@ -45,7 +45,7 @@ export const createReservation = async (req, res ,next) => {
     sendReservationConfirmationEmail(USER.email, reservationDetails);
     console.log(USER.email)
     res.status(201).json(reservation);
-  } catch (error) {
+  } catch (err) {
     next(err)
   }
 };
@@ -55,7 +55,7 @@ export const getAllReservations = async (req, res,next) => {
   try {
     const reservations = await Reservation.find().populate("userId");
     res.status(200).json(reservations);
-  } catch (error) {
+  } catch (err) {
     next(err)
   }
 };
@@ -69,7 +69,7 @@ export const getReservationById = async (req, res, next) => {
       return;
     }
     res.status(200).json(reservation);
-  } catch (error) {
+  } catch (err) {
     next(err)
   }
 };
@@ -110,30 +110,19 @@ export const deleteReservation = async (req, res, next) => {
   try {
     const { reservationId } = req.body;
 
-    // Vérifier si l'ID de la réservation est fourni
     if (!reservationId) {
       return res.status(400).json({ message: "Reservation ID is required" });
     }
-
-    // Trouver la réservation par son ID
     const reservation = await Reservation.findById(reservationId);
     if (!reservation) {
       return res.status(404).json({ message: "Reservation not found" });
     }
-
-    // Récupérer l'ID de l'utilisateur à partir de la réservation
     const userId = reservation.userId;
-
-    // Supprimer la réservation
     await Reservation.findByIdAndDelete(reservationId);
-
-    // Récupérer l'utilisateur par son ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Récupérer la salle associée à la réservation
     const room = await Room.findById(reservation.roomId);
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
@@ -141,7 +130,7 @@ export const deleteReservation = async (req, res, next) => {
     room.available = true;
     await room.save();
 
-    // Envoyer un email de confirmation de suppression de réservation
+    // Envoyer un email de confirmation de suppression de reservation
     const reservationDetails = {
       date: reservation.startTime,
       room: room.name
@@ -149,8 +138,8 @@ export const deleteReservation = async (req, res, next) => {
     sendReservationCancellationEmail(user.email, reservationDetails);
 
     res.status(200).json({ message: "Reservation deleted successfully" });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

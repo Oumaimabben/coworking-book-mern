@@ -49,7 +49,7 @@ export const createRoom = async (req, res, next) => {
       if (!room) {
         return res.status(404).json({ message: "Room not found" });
       }
-      // Extract reservation intervals from the room's reservations array
+      
       const reservationIntervals = room.reservations.map(reservation => ({
         startTime: reservation.startTime,
         endTime: reservation.endTime
@@ -61,7 +61,7 @@ export const createRoom = async (req, res, next) => {
         capacity: room.capacity,
         amenities: room.amenities,
         available: room.available,
-        reservations: reservationIntervals // Include reservation intervals in response
+        reservations: reservationIntervals 
       });
     } catch (error) {
       next(err)

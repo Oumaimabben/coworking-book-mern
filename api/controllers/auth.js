@@ -11,8 +11,8 @@ export const register = async (req, res, next) => {
     try {
       await newUser.save();
       res.status(201).json('User created successfully!');
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      next(err);
     }
 };
 
@@ -35,7 +35,7 @@ export const login = async(req,res,next)=>{
             process.env.JWT
           );
           const { password, isAdmin, ...otherDetails } = user._doc;
-          // Définition d'un cookie contenant le jeton d'accès
+          // Def d'un cookie contenant le jeton 
           res.cookie("access_token", token, {
               httpOnly: true, // acces cote serveur cote securite
             })  

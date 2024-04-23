@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Fonction pour envoyer un e-mail de confirmation de réservation
+//confirmation
 export const sendReservationConfirmationEmail = (recipient, reservationDetails) => {
     const mailOptions = {
         from: 'oumaima.benothmene@gmail.com',
@@ -33,6 +33,7 @@ export const sendReservationConfirmationEmail = (recipient, reservationDetails) 
         }
     });
 };
+//modification
 export const sendReservationModificationEmail = (recipient, reservationDetails) => {
     const mailOptions = {
         from: 'oumaima.benothmene@gmail.com',
@@ -54,6 +55,7 @@ export const sendReservationModificationEmail = (recipient, reservationDetails) 
         }
     });
 };
+//delete
 export const sendReservationCancellationEmail = (recipient, reservationDetails) => {
     const mailOptions = {
         from: 'oumaima.benothmene@gmail.com',
