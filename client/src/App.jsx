@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import CreateReservationForm from './pages/Createrev';
+import About from './pages/About';
+import ReservationForm from './pages/ReservationForm';
 
 export default function App() {
   return <BrowserRouter>
@@ -12,6 +14,10 @@ export default function App() {
     <Route path='/' element={< Home/>}/>
     <Route path='/login' element={< Login/>}/>
     <Route path='/register' element={< Register/>}/>
+    <Route path='/about' element={< About/>}/>
+        <Route path='/reservation' element={< ReservationForm/>}/>
+
+
    
           <Route path='/createrev' element={<CreateReservationForm/>} />
   
